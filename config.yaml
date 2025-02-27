@@ -1,0 +1,46 @@
+categories:
+  delirium:
+    - "https://www.youtube.com/watch?v=AKQIF1knCeQ"
+    - "https://www.youtube.com/watch?v=UIgkwY6dRpE"
+    - "https://www.youtube.com/watch?v=YCIptc12bmU"
+    - "https://www.youtube.com/watch?v=5TAwiosyWwM"
+    - "https://www.youtube.com/watch?v=5l4axk7pyTY"
+    - "https://www.youtube.com/watch?v=8329O644jmc"
+  retardation:
+    - "https://www.youtube.com/watch?v=HndnKJpZKvY"
+    - "https://www.youtube.com/watch?v=fvp7mfKjYDM"
+    - "https://www.youtube.com/watch?v=rZd_Hz1Rszo"
+    - "https://www.youtube.com/watch?v=Sx-rr05_tuo"
+    - "https://www.youtube.com/watch?v=0aC_djrocgM"
+    - "https://www.youtube.com/watch?v=3Rpuc4FDaOo"
+  depression:
+    - "https://www.youtube.com/watch?v=F9h4OYeWTHM"
+    - "https://www.youtube.com/watch?v=CK9Upi2LjXA"
+    - "https://www.youtube.com/watch?v=-FgfVbihMeg"
+    - "https://www.youtube.com/watch?v=tipHGvgPYh8"
+  norm (public):
+    - "https://www.youtube.com/watch?v=dymMgXna-_8"
+    - "https://www.youtube.com/watch?v=Ajb9D1MQqWk"
+    - "https://www.youtube.com/watch?v=s7g1QWDrwtU"
+    - "https://www.youtube.com/watch?v=yVLzw-hZMdQ"
+  norm (poetry):
+    - "https://www.youtube.com/watch?v=0G9K3HGbCuw"
+    - "https://www.youtube.com/watch?v=Ip-Jo8Q_VCk"
+    - "https://www.youtube.com/watch?v=B3htOuWxzCc"
+    - "https://www.youtube.com/watch?v=p-3KR5iZLlo"
+    - "https://www.youtube.com/watch?v=suylXVJfNxM"
+  norm (professional):
+    - "https://www.youtube.com/watch?v=QX-THYs8ZMk"
+    - "https://www.youtube.com/watch?v=FSdBKgQMDL4"
+    - "https://www.youtube.com/watch?v=sYiDr7JIntQ"
+    - "https://www.youtube.com/watch?v=I2cCtKdNtJU"
+  norm (emotional):
+    - "https://www.youtube.com/watch?v=XTw4ddijaTo"
+    - "https://www.youtube.com/watch?v=xfwH64Ckufg"
+    - "https://www.youtube.com/watch?v=SKfAgHuKk2E"
+    - "https://www.youtube.com/watch?v=1blNj7OCKUo"
+
+model_name: "cointegrated/rubert-tiny2"
+output_dir: "data/processed/"  # Каталог для сохранения обработанных данных
+log_level: "INFO"
+log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
