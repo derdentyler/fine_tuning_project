@@ -74,7 +74,7 @@ Open `notebooks/eda.ipynb` to analyze the dataset.
 ### 4️⃣ Fine-Tuning the Model Locally
 
 ```bash
-python fine_tune.py
+python -m src.fine_tune
 ```
 
 📌 **Important Notes:**

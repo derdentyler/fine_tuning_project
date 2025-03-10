@@ -50,7 +50,7 @@ class TextDataset(Dataset):
         Возвращает токенизированный текст и числовой индекс категории.
 
         :param idx: индекс примера.
-        :return: токенизированный текст (словарь с тензорами) и метка категории (int).
+        :return: словарь с токенизированным текстом (input_ids, attention_mask и т. д.) и метка категории (labels).
         """
         text = self.texts[idx]
         label = self.labels[idx]
@@ -64,11 +64,13 @@ class TextDataset(Dataset):
             return_tensors="pt"  # Возвращаем тензоры PyTorch
         )
 
-        # `encoding` - это объект с несколькими тензорами (input_ids, attention_mask и т. д.)
-        # Нам нужно убрать дополнительное измерение, так как `return_tensors="pt"` возвращает 2D-тензор.
+        # Убираем лишнюю размерность (по умолчанию tokenizer возвращает тензор с размерностью [1, seq_length])
         encoding = {key: val.squeeze(0) for key, val in encoding.items()}
 
-        return encoding, torch.tensor(label, dtype=torch.long)
+        # Вставляем метку в словарь
+        encoding['labels'] = torch.tensor(label, dtype=torch.long)
+
+        return encoding
 
     def get_label_mapping(self):
         """ Возвращает словарь {категория: индекс}. """
@@ -79,18 +81,22 @@ class TextDataset(Dataset):
         """
         Функция объединения батча для DataLoader.
 
-        :param batch: список кортежей (токенизированный текст, метка)
-        :return: батч с текстами (dict of tensors) и метками (tensor)
+        :param batch: список словарей, каждый из которых содержит токенизированный текст и метку
+        :return: словарь с текстами (dict of tensors) и метками (tensor)
         """
-        texts, labels = zip(*batch)  # Разделяем тексты и метки
+        # Извлекаем токенизированные тексты
+        batch_texts = {key: torch.stack([item[key] for item in batch]) for key in batch[0] if key != "labels"}
 
-        # Объединяем тексты в батч (создаем единую структуру с input_ids, attention_mask и т. д.)
-        batch_texts = {key: torch.stack([text[key] for text in texts]) for key in texts[0]}
+        # Извлекаем метки и преобразуем их в тензор
+        batch_labels = torch.tensor([item["labels"] for item in batch], dtype=torch.long)
 
-        # Создаем тензор для меток
-        batch_labels = torch.tensor(labels, dtype=torch.long)
+        # Создаем итоговый словарь с данными для модели
+        batch_texts["labels"] = batch_labels
 
-        return batch_texts, batch_labels
+        # Выводим информацию для отладки
+        print(f"batch_texts: {batch_texts}")
+
+        return batch_texts
 
 
 def get_dataloader(json_path, config_path, model_name, batch_size=8, shuffle=True):

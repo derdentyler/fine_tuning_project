@@ -36,7 +36,7 @@ model = AutoModelForSequenceClassification.from_pretrained(model_name, num_label
 # Определяем аргументы тренировки
 training_args = TrainingArguments(
     output_dir=save_dir,  # Где сохранять модель
-    evaluation_strategy="epoch",  # Оценивать каждую эпоху
+    eval_strategy="epoch",  # Оценивать каждую эпоху
     save_strategy="epoch",  # Сохранять чекпоинты каждую эпоху
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
@@ -54,6 +54,7 @@ trainer = Trainer(
     args=training_args,
     train_dataset=train_dataset,
     eval_dataset=val_dataset,
+    data_collator=TextDataset.collate_fn,
 )
 
 # Запуск обучения
