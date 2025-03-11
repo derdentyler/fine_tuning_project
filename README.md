@@ -28,7 +28,7 @@ To set up the project locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_REPO.git
+git clone https://github.com/derdentyler/fine_tuning_project
 cd fine_tuning_project
 
 # Create a virtual environment
