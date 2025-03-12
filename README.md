@@ -28,7 +28,7 @@ To set up the project locally:
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_REPO.git
+git clone https://github.com/derdentyler/fine_tuning_project
 cd fine_tuning_project
 
 # Create a virtual environment
@@ -109,9 +109,10 @@ Instead, they should encompass a diverse range of expressive speech styles, such
 ## Future Plans
 
 1. Migrate the project to Poetry
-2. Fine-tune multiple LLM models
-3. Compare fine-tuning results
-4. Implement neural network interpretation techniques (e.g., concept activation vectors)
+2. Add synthetic data to dataset
+3. Fine-tune multiple LLM models
+4. Compare fine-tuning results
+5. Implement neural network interpretation techniques (e.g., concept activation vectors)
 
 ## Contact
 
