@@ -42,5 +42,6 @@ categories:
 
 model_name: "cointegrated/rubert-tiny2"
 output_dir: "data/processed/"  # Каталог для сохранения обработанных данных
+subtitles_dir: "data/raw/"
 log_level: "INFO"
 log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -4,6 +4,7 @@ from src.youtube_scraper import YouTubeScraper
 from src.subtitle_preprocessor import SubtitlePreprocessor
 from src.dataset_saver import DatasetSaver
 from src.utils.logger_loader import LoggerLoader
+from src.utils.config_loader import ConfigLoader
 
 
 class YouTubeDatasetBuilder:
@@ -15,14 +16,16 @@ class YouTubeDatasetBuilder:
         """
         :param config_path: Путь к YAML-конфигу с видео и метками.
         """
-        self.config_path = config_path
+        self.config = ConfigLoader(config_path).config
         self.logger = LoggerLoader().get_logger()
-        self.config = self.load_config()
+
 
         if not self.config:
             raise ValueError("❌ Ошибка: Конфиг не загружен.")
 
-        self.scraper = YouTubeScraper()
+        self.subtitle_dir = self.config.get("subtitles_dir", "data/raw/")
+        self.scraper = YouTubeScraper(self.subtitle_dir)
+
         self.output_dir = self.config.get("output_dir", "data/processed/")
         os.makedirs(self.output_dir, exist_ok=True)
         self.saver = DatasetSaver(os.path.join(self.output_dir, "dataset.json"))
@@ -32,18 +35,6 @@ class YouTubeDatasetBuilder:
         self.downloaded_subtitles = 0
         self.skipped_videos = []  # Список пропущенных видео
 
-    def load_config(self):
-        """
-        Загружает YAML-конфиг с видео и метками.
-        """
-        try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f)
-            self.logger.info("✅ YAML-конфиг успешно загружен")
-            return config
-        except Exception as e:
-            self.logger.error(f"❌ Ошибка загрузки YAML-конфига: {e}")
-            return None
 
     def build_dataset(self):
         """
