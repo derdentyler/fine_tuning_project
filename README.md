@@ -44,34 +44,26 @@ pip install -r requirements.txt
 
 🚀 **Full pipeline: from data collection to fine-tuning**
 
-### 1️⃣ Data Collection
+### 1️⃣ Data Collection and Preprocessing
 
-Run the data collection script (replace `source_list.txt` with your file containing links to videos):
+Run the data collection script (replace `config.yaml` with your file containing links to videos):
 
 ```bash
-python src/data_scraper.py --config config.yaml
+python -m src.youtube_dataset_builder.py
 ```
 
 💡 The collected data will be stored in `data/raw/`.
+💡 Processed .json will be saved in `data/processed/`.
 
-### 2️⃣ Data Processing (preprocessing, labeling, saving)
-
-```bash
-python src/subtitle_preprocessor.py --config config.yaml
-python src/dataset_saver.py --config config.yaml
-```
-
-💡 Processed files will be saved in `data/processed/`.
-
-### 3️⃣ Exploratory Data Analysis (EDA, Jupyter Notebook)
+### 2️⃣ Exploratory Data Analysis (EDA, Jupyter Notebook)
 
 ```bash
 jupyter notebook
 ```
 
-Open `notebooks/eda.ipynb` to analyze the dataset.
+Open `notebooks/eda.ipynb` to analyze the dataset and get handle preprocessing (if necessary).
 
-### 4️⃣ Fine-Tuning the Model Locally
+### 3️⃣ Fine-Tuning the Model Locally
 
 ```bash
 python -m src.fine_tune
