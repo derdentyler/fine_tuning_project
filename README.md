@@ -26,18 +26,34 @@ fine_tuning_project/
 
 To set up the project locally:
 
+### 1️⃣ Clone the repository
 ```bash
-# Clone the repository
 git clone https://github.com/derdentyler/fine_tuning_project
 cd fine_tuning_project
+```
+### 2️⃣ Install Poetry (if not installed)
 
-# Create a virtual environment
-python -m venv venv
-source venv/bin/activate  # On macOS/Linux
-venv\Scripts\activate    # On Windows
+On macOS/Linux:
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+On Windows (PowerShell):
+```bash
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+```
 
-# Install dependencies
-pip install -r requirements.txt
+### 3️⃣ Set up the virtual environment and install dependencies
+
+Poetry automatically creates and manages a virtual environment
+```bash
+poetry install
+```
+
+### 4️⃣ Activate the virtual environment (optional)
+
+Poetry allows running commands without activation, but if needed:
+```bash
+poetry shell
 ```
 
 ## Running the Project
@@ -49,7 +65,7 @@ pip install -r requirements.txt
 Run the data collection script (replace `config.yaml` with your file containing links to videos):
 
 ```bash
-python -m src.youtube_dataset_builder.py
+poetry run python -m src.youtube_dataset_builder.py
 ```
 
 💡 The collected data will be stored in `data/raw/`.
@@ -58,7 +74,7 @@ python -m src.youtube_dataset_builder.py
 ### 2️⃣ Exploratory Data Analysis (EDA, Jupyter Notebook)
 
 ```bash
-jupyter notebook
+poetry run jupyter lab
 ```
 
 Open `notebooks/eda.ipynb` to analyze the dataset and get handle preprocessing (if necessary).
@@ -66,7 +82,7 @@ Open `notebooks/eda.ipynb` to analyze the dataset and get handle preprocessing (
 ### 3️⃣ Fine-Tuning the Model Locally
 
 ```bash
-python -m src.fine_tune
+poetry run python -m src.fine_tune
 ```
 
 📌 **Important Notes:**
@@ -92,6 +108,27 @@ categories:
 
 Instead, they should encompass a diverse range of expressive speech styles, such as **"hallucinations", "poetry", "emotional speech", etc.**
 
+## Unit tests
+
+To use unit and integration tests:
+
+```bash
+# all tests
+pytest
+
+# only unit
+pytest -m unit
+
+# only intergation
+pytest -m integration
+
+# last failed test
+pytest --lf
+
+# detailed view
+pytest -v
+```
+
 ## Technologies Used
 
 - Python
@@ -100,8 +137,8 @@ Instead, they should encompass a diverse range of expressive speech styles, such
 
 ## Future Plans
 
-1. Migrate the project to Poetry
-2. Add synthetic data to dataset
+1. Add .env and run.py
+2. Add synthetic data creation module (not enough original text data)
 3. Fine-tune multiple LLM models
 4. Compare fine-tuning results
 5. Implement neural network interpretation techniques (e.g., concept activation vectors)
