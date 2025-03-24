@@ -2,12 +2,15 @@ import os
 import shutil
 import pytest
 from src.youtube_dataset_builder import YouTubeDatasetBuilder
+from src.utils.config_loader import ConfigLoader
 
 # Пути для тестов
 TEST_CONFIG_PATH = "tests/configs/test_config.yaml"
 TEST_OUTPUT_DIR = "tests/data/processed/"
 TEST_SUBTITLE_DIR = "tests/data/raw/"
 TEST_DATA = "tests/data/"
+
+config = ConfigLoader(TEST_CONFIG_PATH).config
 
 
 @pytest.mark.integration
@@ -22,7 +25,7 @@ def test_youtube_dataset_builder():
     os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
     # Создаем объект билдера с тестовым конфигом
-    builder = YouTubeDatasetBuilder(TEST_CONFIG_PATH)
+    builder = YouTubeDatasetBuilder(config)
 
     # Переназначаем директорию для тестов (чтобы не лезло в основную папку)
     builder.output_dir = TEST_OUTPUT_DIR

@@ -56,6 +56,15 @@ Poetry allows running commands without activation, but if needed:
 poetry shell
 ```
 
+### Rename .env.example to .env
+
+Rename .env.example to .env and change ways by current view:
+```
+PYTHONPATH=.
+OUTPUT_DIR=data/processed/
+SUBTITLES_DIR=data/raw/
+```
+
 ## Running the Project
 
 🚀 **Full pipeline: from data collection to fine-tuning**
@@ -65,7 +74,7 @@ poetry shell
 Run the data collection script (replace `config.yaml` with your file containing links to videos):
 
 ```bash
-poetry run python -m src.youtube_dataset_builder.py
+poetry run pipline --task scrape --config config.yaml
 ```
 
 💡 The collected data will be stored in `data/raw/`.
@@ -76,13 +85,17 @@ poetry run python -m src.youtube_dataset_builder.py
 ```bash
 poetry run jupyter lab
 ```
+or
+```bash
+poetry run pipline --task eda
+```
 
 Open `notebooks/eda.ipynb` to analyze the dataset and get handle preprocessing (if necessary).
 
 ### 3️⃣ Fine-Tuning the Model Locally
 
 ```bash
-poetry run python -m src.fine_tune
+poetry run pipline --task train --config config.yaml --model my_model
 ```
 
 📌 **Important Notes:**

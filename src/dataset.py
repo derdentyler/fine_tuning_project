@@ -2,7 +2,6 @@ import json
 import torch
 from torch.utils.data import Dataset
 from transformers import AutoTokenizer
-from src.utils.config_loader import ConfigLoader
 import os
 from torch.utils.data import DataLoader
 
@@ -11,12 +10,12 @@ os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
 
 class TextDataset(Dataset):
-    def __init__(self, json_path: str, config_path: str, model_name: str, max_length: int = 512):
+    def __init__(self, json_path: str, config: dict, model_name: str, max_length: int = 512):
         """
         Загружает данные из JSON, токенизирует текст и преобразует категории в числовые индексы.
 
         :param json_path: путь к JSON-файлу с данными.
-        :param config_path: путь к конфигу с категориями.
+        :param config: конфиг с категориями.
         :param model_name: имя предобученной модели (используется для загрузки соответствующего токенизатора).
         :param max_length: максимальная длина токенизированного текста (по умолчанию 512).
         """
@@ -24,8 +23,8 @@ class TextDataset(Dataset):
             self.data = json.load(f)
 
         # Загружаем список категорий из конфига и создаем маппинг категория -> индекс
-        config = ConfigLoader(config_path).config
-        self.label_to_idx = {cat: idx for idx, cat in enumerate(config["categories"])}
+        self.config = config
+        self.label_to_idx = {cat: idx for idx, cat in enumerate(self.config["categories"])}
         self.idx_to_label = {idx: cat for cat, idx in self.label_to_idx.items()}
 
         # Загружаем токенизатор от модели
@@ -99,16 +98,16 @@ class TextDataset(Dataset):
         return batch_texts
 
 
-def get_dataloader(json_path, config_path, model_name, batch_size=8, shuffle=True):
+def get_dataloader(json_path, config, model_name, batch_size=8, shuffle=True):
     """
     Создает DataLoader для работы с батчами.
 
     :param json_path: путь к JSON-файлу с данными.
-    :param config_path: путь к конфигу.
+    :param config: конфиг.
     :param model_name: название предобученной модели для токенизации.
     :param batch_size: размер батча (по умолчанию 8).
     :param shuffle: перемешивать данные или нет (по умолчанию True).
     :return: DataLoader
     """
-    dataset = TextDataset(json_path, config_path, model_name)  # Теперь передаем model_name
+    dataset = TextDataset(json_path, config, model_name)  # Теперь передаем model_name
     return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=TextDataset.collate_fn)

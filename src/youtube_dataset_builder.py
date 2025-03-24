@@ -1,10 +1,8 @@
 import os
-import yaml
 from src.youtube_scraper import YouTubeScraper
 from src.subtitle_preprocessor import SubtitlePreprocessor
 from src.dataset_saver import DatasetSaver
 from src.utils.logger_loader import LoggerLoader
-from src.utils.config_loader import ConfigLoader
 
 
 class YouTubeDatasetBuilder:
@@ -12,13 +10,12 @@ class YouTubeDatasetBuilder:
     Класс для автоматического сбора датасета с YouTube на основе ссылок и меток из YAML-конфига.
     """
 
-    def __init__(self, config_path: str):
+    def __init__(self, config: dict):
         """
-        :param config_path: Путь к YAML-конфигу с видео и метками.
+        :param config: Загруженный YAML-конфиг с видео и метками.
         """
-        self.config = ConfigLoader(config_path).config
+        self.config = config
         self.logger = LoggerLoader().get_logger()
-
 
         if not self.config:
             raise ValueError("❌ Ошибка: Конфиг не загружен.")
@@ -34,7 +31,6 @@ class YouTubeDatasetBuilder:
         self.total_videos = 0
         self.downloaded_subtitles = 0
         self.skipped_videos = []  # Список пропущенных видео
-
 
     def build_dataset(self):
         """
@@ -107,10 +103,3 @@ class YouTubeDatasetBuilder:
             print("\n⚠️ Список необработанных видео:")
             for item in self.skipped_videos:
                 print(f"   ❌ {item['url']} — {item['reason']}")
-
-
-if __name__ == "__main__":
-    CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "config.yaml"))
-
-    builder = YouTubeDatasetBuilder(CONFIG_PATH)
-    builder.build_dataset()
