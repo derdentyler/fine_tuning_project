@@ -8,3 +8,4 @@ checkpoints/
 save_dir/
 logs/
 *.zip
+.env

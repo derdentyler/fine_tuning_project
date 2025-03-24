@@ -150,11 +150,11 @@ pytest -v
 
 ## Future Plans
 
-1. Add .env and run.py
-2. Add synthetic data creation module (not enough original text data)
-3. Fine-tune multiple LLM models
-4. Compare fine-tuning results
-5. Implement neural network interpretation techniques (e.g., concept activation vectors)
+0. Refactoring: add types annotation, remove prints (only logger using), add simple docker pipline
+1. Add synthetic data creation module (not enough original text data)
+2. Fine-tune multiple LLM models
+3. Compare fine-tuning results
+4. Implement neural network interpretation techniques (e.g., concept activation vectors)
 
 ## Contact
 
