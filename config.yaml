@@ -4,6 +4,16 @@ subtitles_dir: ${SUBTITLES_DIR}
 train_data_path: "data/processed/train.json"
 val_data_path: "data/processed/val.json"
 save_dir: "checkpoints"
+use_lora:        true           # включить LoRA-режим
+lora_r:          8              # ранг LoRA
+lora_alpha:      32             # коэффициент масштабирования
+lora_dropout:    0.1            # dropout для LoRA
+batch_size:      16
+num_epochs:      4
+learning_rate:   3e-5
+weight_decay:    0.01
+logging_steps:   20
+save_total_limit: 2
 log_level: "INFO"
 log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 categories:
