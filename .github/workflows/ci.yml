@@ -16,6 +16,7 @@ jobs:
         with:
           python-version: 3.12
       - run: pip install poetry
+      - run: poetry lock --no-interaction --no-ansi
       - run: poetry install --no-interaction --no-ansi --without dev
       - run: poetry run pytest -m unit --maxfail=1 --disable-warnings -q
 
@@ -29,5 +30,6 @@ jobs:
         with:
           python-version: 3.12
       - run: pip install poetry
+      - run: poetry lock --no-interaction --no-ansi
       - run: poetry install --no-interaction --no-ansi
       - run: poetry run pytest -m integration --maxfail=1 --disable-warnings -q
