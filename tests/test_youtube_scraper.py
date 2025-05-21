@@ -6,51 +6,45 @@ from src.youtube_scraper import YouTubeScraper
 
 # Путь к тестовому конфигу
 CONFIG_PATH = "tests/configs/test_config.yaml"
-TEST_DATA = "tests/data/"
 
-# Загружаем конфиг
-config = ConfigLoader(config_path=CONFIG_PATH).config
-
-# Получаем параметры из тестового конфига
-TEST_SUBTITLE_DIR = config["subtitles_dir"]
-
-# Берём первую попавшуюся ссылку из категорий
-TEST_VIDEO_URL = None
-for category, videos in config["categories"].items():
-    if videos:  # Если список не пустой
-        TEST_VIDEO_URL = videos[0]
-        break
-
-# Проверяем, что ссылка найдена
-if not TEST_VIDEO_URL:
-    raise ValueError("❌ В test_config.yaml нет видео для тестирования!")
+@pytest.fixture(scope="module")
+def cfg():
+    return ConfigLoader(config_path=CONFIG_PATH).get_config()
 
 @pytest.fixture
-def scraper():
-    """Фикстура для создания YouTubeScraper с тестовыми параметрами."""
-    return YouTubeScraper(save_path=TEST_SUBTITLE_DIR)
+def scraper(tmp_path, cfg):
+    """
+    Фикстура для YouTubeScraper.
+    Создаём чистый tmp_path и передаём в него конфиг.subtitles_dir
+    """
+    # переопределяем путь для субтитров в tmp
+    temp_dir = tmp_path / "subs"
+    temp_dir.mkdir()
+    cfg.subtitles_dir = str(temp_dir)
+    return YouTubeScraper(save_path=str(temp_dir))
 
 @pytest.mark.unit
-def test_download_subtitles(scraper):
+def test_download_subtitles(scraper, cfg):
     """
-    Тест проверяет реальное скачивание субтитров.
-    1. Запускает `download_subtitles()`
-    2. Проверяет, что файл появился.
-    3. Удаляет файл после теста.
+    Тестирует download_subtitles:
+    1. Удаляем старый файл.
+    2. Скачиваем субтитры.
+    3. Проверяем, что файл появился.
     """
+    # Выбираем первую ссылку
+    TEST_VIDEO_URL = next(iter(cfg.categories.values()))[0]
     video_id = TEST_VIDEO_URL.split("v=")[-1]
-    expected_file = os.path.join(TEST_SUBTITLE_DIR, f"{video_id}.vtt")
+    expected_file = os.path.join(cfg.subtitles_dir, f"{video_id}.vtt")
 
-    # Удаляем старый файл, если он остался от предыдущих тестов
+    # Гарантируем, что файла нет
     if os.path.exists(expected_file):
         os.remove(expected_file)
 
-    # Запускаем скачивание субтитров
+    # Запускаем скачивание
     result = scraper.download_subtitles(TEST_VIDEO_URL)
 
-    # Проверяем, что файл создался
     assert result == expected_file, "Функция вернула неправильный путь!"
-    assert os.path.exists(expected_file), "Субтитры не скачались!"
+    assert os.path.isfile(expected_file), "Субтитры не скачались!"
 
-    # Очистка тестовой папки после выполнения (чтобы файлы не копились)
-    shutil.rmtree(TEST_DATA)
+    # Чистим только созданные файлы
+    shutil.rmtree(cfg.subtitles_dir)

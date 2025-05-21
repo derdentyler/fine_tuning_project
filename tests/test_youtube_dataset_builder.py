@@ -8,39 +8,36 @@ from src.utils.config_loader import ConfigLoader
 TEST_CONFIG_PATH = "tests/configs/test_config.yaml"
 TEST_OUTPUT_DIR = "tests/data/processed/"
 TEST_SUBTITLE_DIR = "tests/data/raw/"
-TEST_DATA = "tests/data/"
-
-config = ConfigLoader(TEST_CONFIG_PATH).config
-
 
 @pytest.mark.integration
 def test_youtube_dataset_builder():
     """
     Интеграционный тест: проверяет полный цикл работы YouTubeDatasetBuilder.
-    Должны скачаться субтитры, обработаться и сохраниться в JSON.
+    Скачиваются субтитры, обрабатываются и сохраняются в JSON.
     """
-    # Удаляем старые тестовые данные перед запуском
+    # Убедиться, что чистая папка вывода
     if os.path.exists(TEST_OUTPUT_DIR):
         shutil.rmtree(TEST_OUTPUT_DIR)
     os.makedirs(TEST_OUTPUT_DIR, exist_ok=True)
 
-    # Создаем объект билдера с тестовым конфигом
-    builder = YouTubeDatasetBuilder(config)
+    # Загружаем валидированный конфиг
+    cfg = ConfigLoader(config_path=TEST_CONFIG_PATH).get_config()
 
-    # Переназначаем директорию для тестов (чтобы не лезло в основную папку)
+    # Создаем билдер и задаем тестовые пути
+    builder = YouTubeDatasetBuilder(cfg)
     builder.output_dir = TEST_OUTPUT_DIR
     builder.saver.output_path = os.path.join(TEST_OUTPUT_DIR, "dataset.json")
 
     # Запускаем сбор датасета
     builder.build_dataset()
 
-    # Проверяем, что JSON-файл с результатами создан
+    # Проверяем JSON
     dataset_path = os.path.join(TEST_OUTPUT_DIR, "dataset.json")
-    assert os.path.exists(dataset_path), "❌ Датасет не был сохранен!"
+    assert os.path.isfile(dataset_path), "❌ Датасет не был сохранен!"
 
-    # Проверяем, что хотя бы один обработанный файл субтитров есть
-    processed_files = [f for f in os.listdir(TEST_SUBTITLE_DIR) if f.endswith("_cleaned.txt")]
-    assert len(processed_files) > 0, "❌ Нет обработанных субтитров!"
+    # Проверяем наличие хотя бы одного обработанного файла
+    cleaned = [f for f in os.listdir(TEST_SUBTITLE_DIR) if f.endswith("_cleaned.txt")]
+    assert cleaned, "❌ Нет обработанных субтитров!"
 
-    # Очистка тестовой папки после выполнения (чтобы файлы не копились)
-    shutil.rmtree(TEST_DATA)
+    # Финальная очистка только test data
+    shutil.rmtree(TEST_OUTPUT_DIR)

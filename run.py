@@ -19,8 +19,10 @@ def main():
     args = parser.parse_args()
 
     # Загружаем конфиг
-    config = ConfigLoader(args.config).config
-    model_name = args.model if args.model else config["model_name"]
+    # config = ConfigLoader(args.config).config
+    config = ConfigLoader(args.config).get_config()
+    # model_name = args.model if args.model else config["model_name"]
+    model_name = args.model if args.model else config.model_name
 
     logger.info(f"Loaded config from {args.config}")
     logger.info(f"Using model: {model_name}")

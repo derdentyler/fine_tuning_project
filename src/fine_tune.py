@@ -9,18 +9,23 @@ from transformers import (
 from peft import LoraConfig, get_peft_model, TaskType
 from src.dataset import TextDataset
 from src.utils.logger_loader import LoggerLoader
+from src.utils.config_model import AppConfig  # импорт Pydantic-модели
 
 logger = LoggerLoader().get_logger()
 
-def fine_tune_model(config: dict, model_name: str):
+def fine_tune_model(cfg: AppConfig, model_name: str):
+    """
+    cfg: AppConfig — валидированный конфиг из ConfigLoader().get_config()
+    model_name: str — имя модели или путь, можно переопределить через CLI
+    """
     logger.info("Starting fine-tuning process...")
 
     # ========== Настройки из конфига ==========
-    use_lora    = config.get("use_lora", False)              # флаг включения LoRA
-    lora_r      = config.get("lora_r", 8)                    # ранг адаптера (8–16) :contentReference[oaicite:3]{index=3}
-    lora_alpha  = config.get("lora_alpha", 32)               # масштабирование градиента :contentReference[oaicite:4]{index=4}
-    lora_dropout= config.get("lora_dropout", 0.1)            # dropout для адаптера :contentReference[oaicite:5]{index=5}
-    save_dir    = config.get("save_dir", "checkpoints")
+    use_lora     = cfg.use_lora
+    lora_r       = cfg.lora_r
+    lora_alpha   = cfg.lora_alpha
+    lora_dropout = cfg.lora_dropout
+    save_dir     = cfg.save_dir
     os.makedirs(save_dir, exist_ok=True)
 
     # ========== Устройство ==========
@@ -28,13 +33,13 @@ def fine_tune_model(config: dict, model_name: str):
     logger.info(f"Using device: {device}")
 
     # ========== Датасеты ==========
-    train_ds = TextDataset(config["train_data_path"], config, model_name)
-    val_ds   = TextDataset(config["val_data_path"],   config, model_name)
+    train_ds = TextDataset(cfg.train_data_path, cfg.model_dump(), model_name)
+    val_ds   = TextDataset(cfg.val_data_path,   cfg.model_dump(), model_name)
     num_labels = len(train_ds.get_label_mapping())
 
     # ========== Токенизатор и модель ==========
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model     = AutoModelForSequenceClassification.from_pretrained(
         model_name,
         num_labels=num_labels
     )
@@ -44,14 +49,14 @@ def fine_tune_model(config: dict, model_name: str):
     if use_lora:
         logger.info("Applying LoRA PEFT...")
         peft_config = LoraConfig(
-            task_type=TaskType.SEQ_CLS,     # Sequence Classification :contentReference[oaicite:6]{index=6}
+            task_type=TaskType.SEQ_CLS,
             r=lora_r,
             lora_alpha=lora_alpha,
             lora_dropout=lora_dropout,
-            target_modules=["q_proj", "v_proj"],  # части attention :contentReference[oaicite:7]{index=7}
+            target_modules=["q_proj", "v_proj"],
             bias="none"
         )
-        model = get_peft_model(model, peft_config)        # оборачиваем модель в PEFT :contentReference[oaicite:8]{index=8}
+        model = get_peft_model(model, peft_config)
 
     model.to(device)
 
@@ -60,14 +65,14 @@ def fine_tune_model(config: dict, model_name: str):
         output_dir=save_dir,
         eval_strategy="epoch",
         save_strategy="epoch",
-        per_device_train_batch_size=config.get("batch_size", 8),
-        per_device_eval_batch_size=config.get("batch_size", 8),
-        num_train_epochs=config.get("num_epochs", 3),
-        learning_rate=config.get("learning_rate", 5e-5),
-        weight_decay=config.get("weight_decay", 0.01),
+        per_device_train_batch_size=cfg.batch_size,
+        per_device_eval_batch_size=cfg.batch_size,
+        num_train_epochs=cfg.num_epochs,
+        learning_rate=cfg.learning_rate,
+        weight_decay=cfg.weight_decay,
         logging_dir="logs",
-        logging_steps=config.get("logging_steps", 10),
-        save_total_limit=config.get("save_total_limit", 2),
+        logging_steps=cfg.logging_steps,
+        save_total_limit=cfg.save_total_limit,
         push_to_hub=False,
     )
 
@@ -78,6 +83,7 @@ def fine_tune_model(config: dict, model_name: str):
         train_dataset=train_ds,
         eval_dataset=val_ds,
         data_collator=TextDataset.collate_fn,
+        tokenizer=tokenizer,
     )
 
     # ========== Запуск обучения ==========

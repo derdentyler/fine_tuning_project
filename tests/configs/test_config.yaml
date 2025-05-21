@@ -1,11 +1,30 @@
+model_name: "cointegrated/rubert-tiny2"
+
+output_dir: "tests/data/processed/"
+subtitles_dir: "tests/data/raw/"
+
+train_data_path: "tests/data/processed/train.json"
+val_data_path:   "tests/data/processed/val.json"
+
+save_dir: "checkpoints"
+
+use_lora: true
+lora_r:   8
+lora_alpha: 32
+lora_dropout: 0.1
+
+batch_size:      16
+num_epochs:      4
+learning_rate:   3e-5
+weight_decay:    0.01
+logging_steps:   20
+save_total_limit: 2
+
+log_level:  "INFO"
+log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
 categories:
   delirium:
     - "https://www.youtube.com/watch?v=AKQIF1knCeQ"
   retardation:
     - "https://www.youtube.com/watch?v=HndnKJpZKvY"
-
-model_name: "cointegrated/rubert-tiny2"
-output_dir: "tests/data/processed/"  # Каталог для сохранения обработанных данных
-subtitles_dir: "tests/data/raw/"
-log_level: "INFO"
-log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

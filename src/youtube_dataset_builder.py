@@ -3,103 +3,100 @@ from src.youtube_scraper import YouTubeScraper
 from src.subtitle_preprocessor import SubtitlePreprocessor
 from src.dataset_saver import DatasetSaver
 from src.utils.logger_loader import LoggerLoader
+from src.utils.config_model import AppConfig  # Pydantic‑модель
 
 
 class YouTubeDatasetBuilder:
     """
-    Класс для автоматического сбора датасета с YouTube на основе ссылок и меток из YAML-конфига.
+    Класс для автоматического сбора датасета с YouTube на основе ссылок
+    и меток из Pydantic‑конфига AppConfig.
     """
 
-    def __init__(self, config: dict):
+    def __init__(self, cfg: AppConfig):
         """
-        :param config: Загруженный YAML-конфиг с видео и метками.
+        :param cfg: экземпляр AppConfig с загруженными и валидированными настройками.
         """
-        self.config = config
+        self.cfg = cfg
         self.logger = LoggerLoader().get_logger()
 
-        if not self.config:
+        # Проверка, что конфиг действительно есть
+        if not self.cfg:
             raise ValueError("❌ Ошибка: Конфиг не загружен.")
 
-        self.subtitle_dir = self.config.get("subtitles_dir", "data/raw/")
+        # Директория для загрузки субтитров
+        self.subtitle_dir = cfg.subtitles_dir
+        os.makedirs(self.subtitle_dir, exist_ok=True)
         self.scraper = YouTubeScraper(self.subtitle_dir)
 
-        self.output_dir = self.config.get("output_dir", "data/processed/")
+        # Директория для выходных данных
+        self.output_dir = cfg.output_dir
         os.makedirs(self.output_dir, exist_ok=True)
         self.saver = DatasetSaver(os.path.join(self.output_dir, "dataset.json"))
 
-        # Счетчики
+        # Статистика
         self.total_videos = 0
         self.downloaded_subtitles = 0
-        self.skipped_videos = []  # Список пропущенных видео
+        self.skipped_videos = []
 
     def build_dataset(self):
         """
         Собирает датасет: скачивает субтитры, обрабатывает их и сохраняет в JSON.
         """
         dataset = []
-        categories = self.config.get("categories", {})
-
-        for category, video_urls in categories.items():
-            for url in video_urls:
-                self.total_videos += 1  # Увеличиваем общее количество видео
-                self.logger.info(f"🔍 Обрабатываю видео {url} (категория: {category})")
-
+        for category, urls in self.cfg.categories.items():
+            for url in urls:
+                self.total_videos += 1
+                self.logger.info(f"🔍 Обрабатываю {url} (категория: {category})")
                 try:
-                    subtitle_path = self.scraper.download_subtitles(url)
-                    if not subtitle_path:
-                        self.logger.warning(f"⚠️ Пропущено: нет субтитров для {url}")
+                    # 1) Скачиваем субтитры
+                    path = self.scraper.download_subtitles(url)
+                    if not path:
+                        self.logger.warning(f"⚠️ Пропущено (нет сабов): {url}")
                         self.skipped_videos.append({"url": url, "reason": "Нет субтитров"})
                         continue
+                    self.downloaded_subtitles += 1
 
-                    self.downloaded_subtitles += 1  # Увеличиваем количество загруженных субтитров
+                    # 2) Предобработка
+                    cleaned = path.replace(".vtt", "_cleaned.txt")
+                    SubtitlePreprocessor(path, cleaned).process()
 
-                    output_subtitle_path = subtitle_path.replace(".vtt", "_cleaned.txt")
-                    preprocessor = SubtitlePreprocessor(subtitle_path, output_subtitle_path)
-                    preprocessor.process()
-
-                    # Читаем обработанный текст
+                    # 3) Читаем и валидируем текст
                     try:
-                        with open(output_subtitle_path, "r", encoding="utf-8") as f:
-                            processed_text = f.read()
+                        text = open(cleaned, encoding="utf-8").read()
                     except Exception as e:
-                        self.logger.error(f"❌ Ошибка чтения обработанного файла {output_subtitle_path}: {e}")
-                        self.skipped_videos.append({"url": url, "reason": "Ошибка чтения обработанного файла"})
+                        self.logger.error(f"Ошибка чтения {cleaned}: {e}")
+                        self.skipped_videos.append({"url": url, "reason": "Чтение сабов"})
+                        continue
+                    if not text:
+                        self.logger.warning(f"⚠️ Пустой текст после обработки: {url}")
+                        self.skipped_videos.append({"url": url, "reason": "Пустой текст"})
                         continue
 
-                    if not processed_text:
-                        self.logger.warning(f"⚠️ Пропущено: ошибка обработки субтитров {url}")
-                        self.skipped_videos.append({"url": url, "reason": "Ошибка обработки субтитров"})
-                        continue
-
-                    dataset.append({"category": category, "text": processed_text})
+                    dataset.append({"category": category, "text": text})
 
                 except Exception as e:
-                    self.logger.exception(f"❌ Ошибка обработки видео {url}: {e}")
-                    self.skipped_videos.append({"url": url, "reason": "Ошибка при обработке"})
-                    continue  # Переходим к следующему видео, не прерывая процесс
+                    self.logger.exception(f"Ошибка обработки {url}: {e}")
+                    self.skipped_videos.append({"url": url, "reason": "Общая ошибка"})
+                    continue
 
-        # Сохранение датасета с обработкой ошибок
+        # Сохраняем результат
         if dataset:
             try:
                 self.saver.save(dataset)
-                self.logger.info(f"✅ Датасет успешно собран и сохранен в {self.output_dir}")
+                self.logger.info(f"✅ Датасет сохранён в {self.output_dir}")
             except Exception as e:
-                self.logger.error(f"❌ Ошибка сохранения датасета: {e}")
+                self.logger.error(f"Ошибка сохранения датасета: {e}")
         else:
-            self.logger.warning("⚠️ Датасет пуст: не найдено обработанных данных")
+            self.logger.warning("⚠️ Датасет пуст")
 
-        # Вывод статистики
-        self.logger.info(f"📊 Загружено субтитров: {self.downloaded_subtitles} из {self.total_videos} видео")
-
-        # Вывод списка необработанных видео
+        # Логгируем статистику
+        self.logger.info(f"📊 Загружено {self.downloaded_subtitles}/{self.total_videos} сабов")
         if self.skipped_videos:
             self.logger.warning("⚠️ Необработанные видео:")
-            for item in self.skipped_videos:
-                self.logger.warning(f"   ❌ {item['url']} — {item['reason']}")
-
-        print("\n📊 Статистика загрузки:")
-        print(f"   ✅ Загружено субтитров: {self.downloaded_subtitles} из {self.total_videos}")
+            for it in self.skipped_videos:
+                self.logger.warning(f"   ❌ {it['url']} — {it['reason']}")
+        print(f"\n📊 Статистика: {self.downloaded_subtitles}/{self.total_videos} сабов")
         if self.skipped_videos:
-            print("\n⚠️ Список необработанных видео:")
-            for item in self.skipped_videos:
-                print(f"   ❌ {item['url']} — {item['reason']}")
+            print("⚠️ Необработанные видео:")
+            for it in self.skipped_videos:
+                print(f"   ❌ {it['url']} — {it['reason']}")
