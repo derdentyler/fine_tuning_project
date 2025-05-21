@@ -3,7 +3,7 @@ name = "mindspeak-research"
 version = "0.1.0"
 description = "MindSpeak Research aims to identify distinctions between speech patterns associated with various mental disorders and natural monologues, including creative, professional, and emotional speech."
 authors = [
-    {name = "derdentyler",email = "alexander.polybinsky@gmail.com "}
+    {name = "derdentyler", email = "alexander.polybinsky@gmail.com"}
 ]
 packages = [{ include = "src" }]
 readme = "README.md"
@@ -42,10 +42,6 @@ dependencies = [
     "huggingface-hub (==0.29.1)",
     "idna (==3.10)",
     "iniconfig (==2.0.0)",
-    "ipykernel (==6.29.5)",
-    "ipython (==8.32.0)",
-    "ipywidgets (==8.1.5)",
-    "isoduration (==20.11.0)",
     "jedi (==0.19.2)",
     "jinja2 (==3.1.5)",
     "joblib (==1.4.2)",
@@ -53,18 +49,6 @@ dependencies = [
     "jsonpointer (==3.0.0)",
     "jsonschema (==4.23.0)",
     "jsonschema-specifications (==2024.10.1)",
-    "jupyter (==1.1.1)",
-    "jupyter-console (==6.6.3)",
-    "jupyter-events (==0.12.0)",
-    "jupyter-lsp (==2.2.5)",
-    "jupyter-client (==8.6.3)",
-    "jupyter-core (==5.7.2)",
-    "jupyter-server (==2.15.0)",
-    "jupyter-server-terminals (==0.5.3)",
-    "jupyterlab (==4.3.5)",
-    "jupyterlab-pygments (==0.3.0)",
-    "jupyterlab-server (==2.27.3)",
-    "jupyterlab-widgets (==3.0.13)",
     "kiwisolver (==1.4.8)",
     "markupsafe (==3.0.2)",
     "matplotlib (==3.10.0)",
@@ -77,8 +61,6 @@ dependencies = [
     "nest-asyncio (==1.6.0)",
     "networkx (==3.4.2)",
     "nltk (==3.9.1)",
-    "notebook (==7.3.2)",
-    "notebook-shim (==0.2.4)",
     "numpy (==2.2.3)",
     "overrides (==7.7.0)",
     "packaging (==24.2)",
@@ -100,7 +82,6 @@ dependencies = [
     "python-json-logger (==3.2.1)",
     "pytz (==2025.1)",
     "pywin32 (==308)",
-    "pywinpty (==2.0.15)",
     "pyyaml (==6.0.2)",
     "pyzmq (==26.2.1)",
     "referencing (==0.36.2)",
@@ -147,6 +128,26 @@ dependencies = [
     "dotenv (>=0.9.9,<0.10.0)",
     "peft (>=0.6.0)"
 ]
+
+[tool.poetry.dev-dependencies]
+ipykernel = "6.29.5"
+ipython = "8.32.0"
+ipywidgets = "8.1.5"
+jupyter = "1.1.1"
+jupyter-console = "6.6.3"
+jupyter-events = "0.12.0"
+jupyter-lsp = "2.2.5"
+jupyter-client = "8.6.3"
+jupyter-core = "5.7.2"
+jupyter-server = "2.15.0"
+jupyter-server-terminals = "0.5.3"
+jupyterlab = "4.3.5"
+jupyterlab-pygments = "0.3.0"
+jupyterlab-server = "2.27.3"
+jupyterlab-widgets = "3.0.13"
+notebook = "7.3.2"
+notebook-shim = "0.2.4"
+pywinpty = "2.0.15"
 
 [tool.poetry.scripts]
 pipline = "run:main"
