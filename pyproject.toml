@@ -81,7 +81,7 @@ dependencies = [
     "python-dateutil (==2.9.0.post0)",
     "python-json-logger (==3.2.1)",
     "pytz (==2025.1)",
-    "pywin32 (==308)",
+    "pywin32==308; sys_platform == \"win32\"",
     "pyyaml (==6.0.2)",
     "pyzmq (==26.2.1)",
     "referencing (==0.36.2)",
@@ -147,7 +147,7 @@ jupyterlab-server = "2.27.3"
 jupyterlab-widgets = "3.0.13"
 notebook = "7.3.2"
 notebook-shim = "0.2.4"
-pywinpty = "2.0.15"
+pywinpty = { version = "2.0.15", markers = "sys_platform == 'win32'" }
 
 [tool.poetry.scripts]
 pipline = "run:main"
