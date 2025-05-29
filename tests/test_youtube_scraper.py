@@ -25,7 +25,7 @@ def scraper(cfg, monkeypatch):
       1) Он создавал фиктивный .vtt файл.
       2) Возвращал к нему путь.
     """
-    def fake_download(url):
+    def fake_download(self, url):
         # url мы игнорируем, вместо этого всегда FAKEID.vtt
         out = os.path.join(cfg.subtitles_dir, f"{VIDEO_ID}.vtt")
         # пишем минимальный WEBVTT-файл
