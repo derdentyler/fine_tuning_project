@@ -11,6 +11,7 @@ from src.subtitle_preprocessor import SubtitlePreprocessor
 TEST_CONFIG_PATH = "tests/configs/test_config.yaml"
 TEST_OUTPUT_DIR  = "tests/data/processed/"
 
+
 @pytest.fixture(autouse=True)
 def clean_output():
     # Перед каждым запуском чистим папку
@@ -62,6 +63,7 @@ def fake_files(tmp_path, monkeypatch, cfg):
 
     return fake_vtts
 
+@pytest.mark.integration
 def test_youtube_dataset_builder(fake_files, cfg):
     """
     Теперь build_dataset соберёт фиктивные субтитры,
