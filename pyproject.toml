@@ -123,6 +123,7 @@ dependencies = [
   "widgetsnbextension==4.0.13",
   "wordcloud==1.9.4",
   "yt-dlp==2025.2.19",
+  "pydantic>=2.0,<3.0",
   # Windows only:
   "pywin32==308; sys_platform == \"win32\"",
   # System-level (not pip) tools should be installed externally:
