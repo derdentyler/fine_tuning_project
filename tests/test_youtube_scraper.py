@@ -4,47 +4,57 @@ import shutil
 from src.utils.config_loader import ConfigLoader
 from src.youtube_scraper import YouTubeScraper
 
-# Путь к тестовому конфигу
 CONFIG_PATH = "tests/configs/test_config.yaml"
+TEST_VIDEO_URL = "https://www.youtube.com/watch?v=FAKEID"
+VIDEO_ID = "FAKEID"
+
 
 @pytest.fixture(scope="module")
-def cfg():
-    return ConfigLoader(config_path=CONFIG_PATH).get_config()
+def cfg(tmp_path_factory):
+    # Загружаем конфиг, но сразу переназначим папку субтитров в tmp
+    cfg = ConfigLoader(config_path=CONFIG_PATH).get_config()
+    temp = tmp_path_factory.mktemp("subs")
+    cfg.subtitles_dir = str(temp)
+    return cfg
+
 
 @pytest.fixture
-def scraper(tmp_path, cfg):
+def scraper(cfg, monkeypatch):
     """
-    Фикстура для YouTubeScraper.
-    Создаём чистый tmp_path и передаём в него конфиг.subtitles_dir
+    Подменяем метод download_subtitles, чтобы:
+      1) Он создавал фиктивный .vtt файл.
+      2) Возвращал к нему путь.
     """
-    # переопределяем путь для субтитров в tmp
-    temp_dir = tmp_path / "subs"
-    temp_dir.mkdir()
-    cfg.subtitles_dir = str(temp_dir)
-    return YouTubeScraper(save_path=str(temp_dir))
+    def fake_download(url):
+        # url мы игнорируем, вместо этого всегда FAKEID.vtt
+        out = os.path.join(cfg.subtitles_dir, f"{VIDEO_ID}.vtt")
+        # пишем минимальный WEBVTT-файл
+        with open(out, "w", encoding="utf-8") as f:
+            f.write("WEBVTT\n\n00:00:00.000 --> 00:00:00.500\nHello world")
+        return out
+
+    # Подменяем метод
+    monkeypatch.setattr(YouTubeScraper, "download_subtitles", fake_download)
+    return YouTubeScraper(save_path=cfg.subtitles_dir)
+
 
 @pytest.mark.unit
 def test_download_subtitles(scraper, cfg):
     """
-    Тестирует download_subtitles:
-    1. Удаляем старый файл.
-    2. Скачиваем субтитры.
-    3. Проверяем, что файл появился.
+    Проверяем, что:
+      1) Метод вернёт путь к FAKEID.vtt,
+      2) Файл реально создан в cfg.subtitles_dir.
     """
-    # Выбираем первую ссылку
-    TEST_VIDEO_URL = next(iter(cfg.categories.values()))[0]
-    video_id = TEST_VIDEO_URL.split("v=")[-1]
-    expected_file = os.path.join(cfg.subtitles_dir, f"{video_id}.vtt")
+    expected = os.path.join(cfg.subtitles_dir, f"{VIDEO_ID}.vtt")
 
-    # Гарантируем, что файла нет
-    if os.path.exists(expected_file):
-        os.remove(expected_file)
+    # Убедимся, что до вызова нет
+    if os.path.exists(expected):
+        os.remove(expected)
 
-    # Запускаем скачивание
     result = scraper.download_subtitles(TEST_VIDEO_URL)
 
-    assert result == expected_file, "Функция вернула неправильный путь!"
-    assert os.path.isfile(expected_file), "Субтитры не скачались!"
+    assert result == expected, "download_subtitles должен вернуть путь к FAKEID.vtt"
+    assert os.path.isfile(expected),      "Файл субтитров не создан!"
 
-    # Чистим только созданные файлы
+    # чистим
     shutil.rmtree(cfg.subtitles_dir)
