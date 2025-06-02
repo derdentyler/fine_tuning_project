@@ -1,8 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 
 class AugmentationConfig(BaseModel):
+    """
+    Конфигурация для модуля аугментации (back-translation).
+    Поля должны совпадать с секцией 'augmentation' в config.yaml.
+    """
     input_path: str
     output_path: str
     min_examples: int
@@ -10,10 +14,13 @@ class AugmentationConfig(BaseModel):
     bt_beam_size: int
 
     class Config:
-        extra = "ignore"  # любые поля вне этого списка будут просто проигнорированы
+        extra = "ignore"  # игнорировать лишние ключи
 
 
 class AppConfig(BaseModel):
+    """
+    Основная модель конфигурации приложения.
+    """
     model_name: str
     output_dir: str
     subtitles_dir: str
@@ -36,7 +43,8 @@ class AppConfig(BaseModel):
 
     categories: Dict[str, List[str]]
 
-    augmentation: AugmentationConfig
+    # позволяем тестам не иметь этой секции
+    augmentation: Optional[AugmentationConfig] = None
 
     class Config:
         extra = "ignore"
