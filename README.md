@@ -74,7 +74,7 @@ SUBTITLES_DIR=data/raw/
 Run the data collection script (replace `config.yaml` with your file containing links to videos):
 
 ```bash
-poetry run pipline --task scrape --config config.yaml
+poetry run python run.py --task scrape --config config.yaml
 ```
 
 💡 The collected data will be stored in `data/raw/`.
@@ -87,15 +87,32 @@ poetry run jupyter lab
 ```
 or
 ```bash
-poetry run pipline --task eda
+poetry run python run.py --task eda
 ```
 
 Open `notebooks/eda.ipynb` to analyze the dataset and get handle preprocessing (if necessary).
 
+### Data Augmentation using Back-Translate
+
+This module performs data augmentation using back-translation (Russian→English→Russian) to generate paraphrased text samples.
+
+Key configuration variables (in config.yaml):
+
+* augmentation.**input_path** — path to the input JSON file containing the original, cleaned dataset.
+* augmentation.**output_path** — path where the augmented JSON (original + back-translated samples) will be saved.
+* augmentation.**min_examples** — minimum desired number of total examples per category (originals + augmented).
+* augmentation.**bt_rounds** — number of back-translation cycles to apply to each text (each cycle yields one new sample).
+* augmentation.**bt_beam_size** — beam size parameter for the MarianMT generate() method; larger values generally produce higher-quality translations.
+
+```bash
+ poetry run python run.py --task augment
+```
+
+
 ### 3️⃣ Fine-Tuning the Model Locally
 
 ```bash
-poetry run pipline --task train --config config.yaml --model my_model
+poetry run python run.py --task train --config config.yaml --model my_model
 ```
 
 📌 **Important Notes:**

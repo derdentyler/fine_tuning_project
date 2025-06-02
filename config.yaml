@@ -16,6 +16,17 @@ logging_steps:   20
 save_total_limit: 2
 log_level: "INFO"
 log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+augmentation:
+  # Входной JSON — обычно тот же, что и “dataset_cleaned”
+  input_path: "data/processed/dataset_cleaned.json"
+  # Куда сохранять итоговый файл после аугментации
+  output_path: "data/processed/dataset_augmented.json"
+  # Проверка минимального числа примеров на категорию
+  min_examples: 500
+  # Сколько раундов back-translation делать (каждый раунд RU→EN→RU)
+  bt_rounds: 2
+  # Beam size для model.generate(...) при переводе
+  bt_beam_size: 5
 categories:
   delirium:
     - "https://www.youtube.com/watch?v=AKQIF1knCeQ"
