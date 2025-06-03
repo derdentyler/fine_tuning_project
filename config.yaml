@@ -1,21 +1,49 @@
+################################
+#      ПАРАМЕТРЫ МОДЕЛИ       #
+################################
 model_name: "cointegrated/rubert-tiny2"
+
+
+################################
+#          ПУТИ И ФАЙЛЫ       #
+################################
 output_dir: ${OUTPUT_DIR}  # Каталог для сохранения обработанных данных
 subtitles_dir: ${SUBTITLES_DIR}
 train_data_path: "data/processed/train.json"
 val_data_path: "data/processed/val.json"
 save_dir: "checkpoints"
+
+
+################################
+#      НАСТРОЙКИ LoRA/PEFT     #
+################################
 use_lora:        true           # включить LoRA-режим
 lora_r:          8              # ранг LoRA
 lora_alpha:      32             # коэффициент масштабирования
 lora_dropout:    0.1            # dropout для LoRA
+
+
+################################
+#        ГИПЕРПАРАМЕТРЫ        #
+################################
 batch_size:      16
 num_epochs:      4
 learning_rate:   3e-5
 weight_decay:    0.01
 logging_steps:   20
 save_total_limit: 2
+
+
+################################
+#        ЛОГИРОВАНИЕ           #
+################################
 log_level: "INFO"
 log_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+
+################################
+#       АУГМЕНТАЦИЯ            #
+################################
 augmentation:
   # Входной JSON — обычно тот же, что и “dataset_cleaned”
   input_path: "data/processed/dataset_cleaned.json"
@@ -27,6 +55,11 @@ augmentation:
   bt_rounds: 2
   # Beam size для model.generate(...) при переводе
   bt_beam_size: 5
+
+
+################################
+#         КАТЕГОРИИ            #
+################################
 categories:
   delirium:
     - "https://www.youtube.com/watch?v=AKQIF1knCeQ"

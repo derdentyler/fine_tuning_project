@@ -167,8 +167,7 @@ pytest -v
 
 ## Future Plans
 
-0. Refactoring: add types annotation, remove prints (only logger using), add simple docker pipline
-1. Add synthetic data creation module (not enough original text data)
+1. Refactoring: add types annotation, update config structure
 2. Fine-tune multiple LLM models
 3. Compare fine-tuning results
 4. Implement neural network interpretation techniques (e.g., concept activation vectors)
